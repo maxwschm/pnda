@@ -18,9 +18,9 @@ function error {
     echo "Please run the build dependency installer script"
     exit -1
 }
-
+SBT_LOCAL='-Dsbt.global.base=.sbt/0.13 -Dsbt.ivy.home=.ivy2 -Dsbt.boot.directory=.sbt/boot'
 echo -n "sbt: "
-if [[ $(sbt about 2>&1) != *"This is sbt 0.13"* ]]; then
+if [[ $(sbt $SBT_LOCAL about 2>&1) != *"This is sbt 0.13"* ]]; then
     error
 else
     echo "OK"
@@ -42,14 +42,15 @@ fi
 wget https://github.com/yahoo/kafka-manager/archive/${KM_VERSION}.tar.gz
 tar xzf ${KM_VERSION}.tar.gz
 
-if [ ! -f ~/.sbt/0.13/local.sbt ]; then
-	mkdir -p ~/.sbt/0.13
-	echo 'scalacOptions ++= Seq("-Xmax-classfile-name","100")' >> ~/.sbt/0.13/local.sbt
+if [ ! -f ./.sbt/0.13/local.sbt ]; then
+	mkdir -p ./.sbt/0.13
+	echo 'scalacOptions ++= Seq("-Xmax-classfile-name","100")' >> ./.sbt/0.13/local.sbt
 fi
 
 mkdir -p pnda-build
 cd kafka-manager-${KM_VERSION}
-sbt clean dist
+sbt $SBT_LOCAL clean dist
+
 cd ..
 mv kafka-manager-${KM_VERSION}/target/universal/kafka-manager-${KM_VERSION}.zip pnda-build/
 sha512sum pnda-build/kafka-manager-${KM_VERSION}.zip > pnda-build/kafka-manager-${KM_VERSION}.zip.sha512.txt
